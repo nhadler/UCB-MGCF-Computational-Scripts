@@ -1,0 +1,31 @@
+#!/usr/bin/env python3
+
+# xtbstruc -- A small python script to copy over finished xtb opt files
+# Nicholas Hadler - nhadler@berkeley.edu
+# March 20th, 2022
+
+import os
+from pathlib import Path
+import shutil
+
+
+def file_copy():
+
+    dir = os.getcwd()
+
+    path = Path("final_structures")
+    path.mkdir(parents=True, exist_ok=True)
+
+    for file in os.listdir(dir):
+        if file.endswith("_dir"):
+            subdir = dir + "/" + file + "/"
+            for subfile in os.listdir(subdir):
+                if subfile.startswith("xtbopt") and not subfile.endswith(".log"):
+                    copy_file = subdir + "/" + subfile
+                    new_name = file[:-4] + "." + subfile.split(".")[1]
+                    new_dir = dir + "/" + "final_structures" + "/" + new_name
+                    shutil.copy(copy_file, new_dir)
+
+
+if __name__ == "__main__":
+    file_copy()
