@@ -1,0 +1,37 @@
+#!/usr/bin/env python3
+
+# xtbGrabE -- A small python script to make a csv file of all total free energies found.
+# Nicholas Hadler - nhadler@berkeley.edu
+# March 21th, 2022
+
+import os
+import re
+import csv
+
+
+def energy_extractor():
+    dir = os.getcwd()
+
+    header = ["file", "total free energy (eH)"]
+    df = open("free_energies.csv", "w", newline="", encoding="UTF8")
+    writer = csv.writer(df)
+    writer.writerow(header)
+
+    for file in os.listdir(dir):
+        if file.endswith("_dir"):
+            subdir = dir + "/" + file + "/"
+            for subfile in os.listdir(subdir):
+                if subfile.startswith("out_"):
+                    file_dir = subdir + "/" + subfile
+                    with open(file_dir) as f:
+                        for line in f:
+                            if re.search("TOTAL FREE ENERGY", line):
+                                energy = line.rpartition("        ")[2]
+                                energy_line = [file[:-4], energy[:-8]]
+                                writer.writerow(energy_line)
+
+    df.close()
+
+
+if __name__ == "__main__":
+    energy_extractor()
