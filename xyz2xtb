@@ -1,0 +1,63 @@
+#!/usr/bin/env python3
+
+# xyz2xtb -- A small python script to run xtb on xyz files found in a directory
+# Nicholas Hadler - nhadler@berkeley.edu
+# March 20th, 2022
+
+import os
+from pathlib import Path
+import shutil
+import time
+import argparse
+
+
+def xyz_to_xtb(com_file, cores):
+
+    # Gets current directory
+    dir = os.getcwd()
+
+    # Open XTB command file
+    with open(com_file, "r") as file:
+        com = file.read().rstrip("\n")
+
+    for file in os.listdir(dir):
+
+        if file.endswith(".xyz"):
+
+            # Creates a folder for each XYZ file and copies the XYZ into them.
+            new_dir = file.split(".")[0] + "_dir"
+            path = Path(new_dir)
+            path.mkdir(parents=True, exist_ok=True)
+            shutil.copy(file, new_dir)
+
+            # Formats and writes the complete com file
+            new_com = file + " " + com + " > out_" + file.split(".")[0]
+            f_name = new_dir + "/com_" + file.split(".")[0]
+            f = open(f_name, "w")
+            f.write(new_com)
+            f.close()
+
+            # Runs the MGCF xtb command
+            xtb_run = (
+                "cd " + new_dir + " && "
+                "run_xtb " + "com_" + file.split(".")[0] + " " + cores
+            )
+            os.system(xtb_run)
+
+            # Waits 3 seconds for file to be submitted
+            time.sleep(3)
+
+
+if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser(
+        description="""A small python script to run xtb on xyz files found in a directory""",
+    )
+    parser.add_argument(
+        "com",
+        help="Com file for XTB arguments. This needs to only include the run arguments.",
+    )
+    parser.add_argument("cores", help="Number of cores to use.")
+    args = vars(parser.parse_args())
+
+    xyz_to_xtb(args["com"], args["cores"])
