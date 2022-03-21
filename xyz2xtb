@@ -22,7 +22,7 @@ def xyz_to_xtb(com_file, cores):
 
     for file in os.listdir(dir):
 
-        if file.endswith(".xyz"):
+        if file.endswith(".xyz") or file.endswith(".sdf"):
 
             # Creates a folder for each XYZ file and copies the XYZ into them.
             new_dir = file.split(".")[0] + "_dir"
